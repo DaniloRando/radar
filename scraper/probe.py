@@ -1,22 +1,22 @@
-"""Diagnostica temporanea (3): la pagina catalogo renderizzata dal server è italiana?"""
+"""Diagnostica temporanea (4): dove sono i cuori nella pagina catalogo."""
 import re
 from curl_cffi import requests
 
 WWW = "https://www.vinted.it"
 s = requests.Session(impersonate="chrome")
 s.get(WWW + "/", headers={"Accept-Language": "it-IT,it;q=0.9"}, timeout=30)
-for q in ("catalog[]=257&order=relevance", "catalog[]=257&order=relevance&page=2", "catalog[]=257&order=newest_first&page=3"):
-    c = s.get(f"{WWW}/catalog?{q}", headers={"Accept-Language": "it-IT,it;q=0.9"}, timeout=30)
-    t = c.text
-    u = t.replace('\\"', '"')
-    print(f"\n== {q} -> {c.status_code} len={len(t)}")
-    print(" favourite_count:", u.count('"favourite_count"'), " EUR:", u.count('"currency_code":"EUR"'), " USD:", u.count('"currency_code":"USD"'),
-          " next_f:", "self.__next_f" in t, " NEXT_DATA:", "__NEXT_DATA__" in t, " data-testid items:", t.count('data-testid="grid-item"'))
-    ids = re.findall(r'"id":(\d{9,12}),"title":"([^"]{0,60})"', u)
-    print(" items:", len(ids), ids[:4])
-    i = u.find('"favourite_count"')
-    if i >= 0:
-        print(" SNIPPET:", u[max(0, i - 1500): i + 900].replace("\n", " "))
-    else:
-        j = t.find("€")
-        print(" EURO SNIPPET:", t[max(0, j - 600): j + 300].replace("\n", " ") if j >= 0 else "nessun €")
+t = s.get(f"{WWW}/catalog?catalog[]=536&order=relevance", headers={"Accept-Language": "it-IT,it;q=0.9"}, timeout=30).text
+u = t.replace('\\"', '"')
+for k in ("avourite", "favorite", "Favourite", "heart", "like_count", "likes"):
+    print(k, u.count(k))
+m = re.search(r'data-testid="product-item-id-(\d+)"', t)
+iid = m.group(1)
+a = t.find(f'product-item-id-{iid}')
+block = t[a: a + 9000]
+end = block.find('data-testid="product-item-id-', 200)
+print("\nHTML ITEM BLOCK:\n", re.sub(r'class="[^"]*"', '', block[: end if end > 0 else 6000])[:5000])
+print("\nJSON MENTIONS OF ID:")
+for mm in list(re.finditer(iid, u))[:8]:
+    seg = u[max(0, mm.start() - 200): mm.start() + 700]
+    if "avourite" in seg or "price" in seg:
+        print("---", seg.replace("\n", " "))
