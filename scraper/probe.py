@@ -1,31 +1,22 @@
-"""Diagnostica temporanea (2): valuta, lingua e campi prezzo della nuova API."""
-import json
+"""Diagnostica temporanea (3): la pagina catalogo renderizzata dal server è italiana?"""
+import re
 from curl_cffi import requests
 
-WWW, API = "https://www.vinted.it", "https://api.vinted.it/svc-catalogue/items"
-L = "it-IT,it;q=0.9"
+WWW = "https://www.vinted.it"
 s = requests.Session(impersonate="chrome")
-r = s.get(WWW + "/", headers={"Accept-Language": L}, timeout=30)
-print("locale cookie", s.cookies.get("anonymous-iso-locale"), "| x-user-iso-locale", r.headers.get("x-user-iso-locale"))
-tok, anon = s.cookies.get("access_token_web"), r.headers.get("x-anon-id")
-H = {"Accept": "application/json", "Accept-Language": L, "Origin": WWW, "Referer": WWW + "/catalog",
-     "Authorization": "Bearer " + tok, "X-Anon-Id": anon}
-
-def show(label, params, extra=None):
-    x = s.get(API, params=params, headers={**H, **(extra or {})}, timeout=30)
-    print(f"\n== {label} -> {x.status_code}")
-    if x.status_code != 200: print(x.text[:200]); return
-    it = x.json()["items"]
-    for i in it[:3]:
-        print(" ", json.dumps({k: i.get(k) for k in ("price", "service_fee", "total_item_price", "url")}, ensure_ascii=False))
-        print("   box:", i["item_box"].get("second_line"), "|", i["item_box"].get("accessibility_label", "")[:140])
-    print("  user keys:", sorted((it[0].get("user") or {}).keys()))
-    print("  currencies:", sorted({(i.get("price") or {}).get("currency_code") for i in it if isinstance(i.get("price"), dict)}))
-
-b = {"attribute_ids[catalog]": "257", "page": 1, "per_page": 10, "order": "relevance"}
-show("base", b)
-show("currency=EUR", dict(b, currency="EUR"))
-show("currency+locale", dict(b, currency="EUR", locale="it-IT"))
-show("header locale", dict(b, currency="EUR"), {"X-Locale": "it-IT", "X-User-Iso-Locale": "it-IT"})
-s.cookies.set("anonymous-iso-locale", "it-IT", domain=".vinted.it")
-show("cookie locale it", dict(b, currency="EUR"))
+s.get(WWW + "/", headers={"Accept-Language": "it-IT,it;q=0.9"}, timeout=30)
+for q in ("catalog[]=257&order=relevance", "catalog[]=257&order=relevance&page=2", "catalog[]=257&order=newest_first&page=3"):
+    c = s.get(f"{WWW}/catalog?{q}", headers={"Accept-Language": "it-IT,it;q=0.9"}, timeout=30)
+    t = c.text
+    u = t.replace('\\"', '"')
+    print(f"\n== {q} -> {c.status_code} len={len(t)}")
+    print(" favourite_count:", u.count('"favourite_count"'), " EUR:", u.count('"currency_code":"EUR"'), " USD:", u.count('"currency_code":"USD"'),
+          " next_f:", "self.__next_f" in t, " NEXT_DATA:", "__NEXT_DATA__" in t, " data-testid items:", t.count('data-testid="grid-item"'))
+    ids = re.findall(r'"id":(\d{9,12}),"title":"([^"]{0,60})"', u)
+    print(" items:", len(ids), ids[:4])
+    i = u.find('"favourite_count"')
+    if i >= 0:
+        print(" SNIPPET:", u[max(0, i - 1500): i + 900].replace("\n", " "))
+    else:
+        j = t.find("€")
+        print(" EURO SNIPPET:", t[max(0, j - 600): j + 300].replace("\n", " ") if j >= 0 else "nessun €")
