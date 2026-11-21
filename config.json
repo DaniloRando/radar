@@ -1,0 +1,36 @@
+{
+  "domain": "vinted.it",
+  "_note": "Taglie pensate per 175 cm / 75 kg. Per filtri esatti puoi incollare in 'vinted_url' l'indirizzo di una ricerca fatta su vinted.it (vedi README).",
+
+  "pages": { "relevance": 5, "newest_first": 3 },
+  "per_page": 96,
+  "max_items_per_category": 300,
+  "delay_seconds": [1.5, 3.5],
+
+  "buyer_protection": { "percent": 5, "fixed": 0.70 },
+
+  "size_profiles": {
+    "top": {
+      "label": "M",
+      "match": ["^M\\b", "^IT ?48\\b", "^48$"]
+    },
+    "jeans": {
+      "label": "W32 L32",
+      "match": ["^W ?32\\b"],
+      "allowed_lengths": [32]
+    },
+    "pantaloni": {
+      "label": "W32 · IT 48",
+      "match": ["^W ?32\\b", "\\bIT ?48\\b", "^48$", "^M\\b"],
+      "allowed_lengths": [32]
+    }
+  },
+
+  "categories": [
+    { "id": "camicie",   "name": "Camicie",            "catalog_ids": [536],  "size_profile": "top",       "shipping_estimate": 3.49 },
+    { "id": "jeans",     "name": "Jeans",              "catalog_ids": [257],  "size_profile": "jeans",     "shipping_estimate": 3.49 },
+    { "id": "pantaloni", "name": "Pantaloni",          "catalog_ids": [34],   "size_profile": "pantaloni", "shipping_estimate": 3.49 },
+    { "id": "maglioni",  "name": "Maglioni e felpe",   "catalog_ids": [79],   "size_profile": "top",       "shipping_estimate": 3.49 },
+    { "id": "giacche",   "name": "Giacche e cappotti", "catalog_ids": [1206], "size_profile": "top",       "shipping_estimate": 4.99 }
+  ]
+}

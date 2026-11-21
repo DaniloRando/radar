@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Radar">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Radar · usato uomo</title>
+<style>
+  :root{
+    --bg:#f4efe6; --paper:#fffdf8; --ink:#1d1b18; --muted:#7a7268; --line:#e3dccf;
+    --accent:#c4502f; --accent-soft:#f6e1d8; --heart:#d13b4b; --ok:#2f6b4f;
+    --r:14px; --shadow:0 1px 2px rgba(40,30,20,.06),0 6px 18px rgba(40,30,20,.06);
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.35 ui-sans-serif,-apple-system,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+
+  header.top{position:sticky;top:0;z-index:20;background:rgba(244,239,230,.92);
+    backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);
+    padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;border-bottom:1px solid transparent}
+  header.top.scrolled{border-bottom-color:var(--line)}
+  .bar{display:flex;align-items:center;gap:10px}
+  .brand{font-size:26px;letter-spacing:-.5px;font-weight:600}
+  .brand i{font-style:italic;color:var(--accent)}
+  .spacer{flex:1}
+  .iconbtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--paper);
+    border:1px solid var(--line);position:relative}
+  .iconbtn .dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:none}
+  .iconbtn.on .dot{display:block}
+  .sub{margin-top:4px;color:var(--muted);font-size:12.5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;background:var(--paper);border:1px solid var(--line);font-size:12px;color:var(--ink)}
+  .banner{margin:10px 16px 0;padding:10px 12px;border-radius:12px;background:var(--accent-soft);color:#6b2a17;font-size:13px}
+
+  main{padding:6px 0 calc(40px + var(--safe-b))}
+  section.cat{margin:18px 0 6px}
+  .cat-head{display:flex;align-items:baseline;gap:8px;padding:0 16px 8px}
+  .cat-head h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .cat-head .n{color:var(--muted);font-size:13px}
+  .cat-head .all{margin-left:auto;color:var(--accent);font-weight:600;font-size:14px;white-space:nowrap}
+  .row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 16px 10px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding:0 16px}
+  .row::-webkit-scrollbar{display:none}
+  .row .card{flex:0 0 42%;max-width:190px;scroll-snap-align:start}
+  .more{flex:0 0 30%;max-width:140px;scroll-snap-align:start;border-radius:var(--r);border:1.5px dashed #cfc5b4;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--accent);font-weight:600;text-align:center;padding:10px}
+  .more span{font-size:28px;line-height:1}
+  .empty{margin:0 16px;padding:18px;border-radius:var(--r);background:var(--paper);color:var(--muted);font-size:14px;border:1px solid var(--line)}
+
+  .card{background:var(--paper);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
+  .ph{position:relative;aspect-ratio:3/4;background:#ebe4d7}
+  .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .hearts{position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 6px;
+    border-radius:99px;background:rgba(255,253,248,.94);font-weight:700;font-size:12.5px}
+  .hearts svg{width:14px;height:14px;fill:var(--heart)}
+  .cond{position:absolute;right:8px;top:8px;padding:2px 7px;border-radius:99px;background:rgba(29,27,24,.72);color:#fff;font-size:10.5px;font-weight:600}
+  .info{padding:8px 10px 10px;display:flex;flex-direction:column;gap:2px}
+  .price{font-weight:750;font-size:17px;letter-spacing:-.2px}
+  .break{color:var(--muted);font-size:10.8px;line-height:1.25}
+  .name{font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
+  .meta{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* pagina categoria */
+  .back{display:flex;align-items:center;gap:6px;font-weight:600}
+  .back svg{width:22px;height:22px}
+  .ctitle{font-size:24px;font-weight:600;letter-spacing:-.4px;margin:2px 0 0}
+  .tools{position:sticky;top:var(--hh,64px);z-index:15;background:var(--bg);padding:8px 16px 10px;display:flex;flex-direction:column;gap:8px}
+  .seg{display:flex;background:#e9e2d5;border-radius:12px;padding:3px}
+  .seg button{flex:1;padding:8px 4px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--muted)}
+  .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .search{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+  .search input{flex:1;border:0;background:none;font:inherit;padding:10px 0;outline:none;color:var(--ink);font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 16px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.row .card{flex-basis:200px}}
+  @media(min-width:960px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}main,header.top{max-width:1180px;margin:0 auto}}
+  .count{padding:2px 16px 6px;color:var(--muted);font-size:12.5px}
+  .sentinel{height:40px}
+
+  /* filtri */
+  .sheet-bg{position:fixed;inset:0;background:rgba(20,15,10,.35);opacity:0;pointer-events:none;transition:.2s;z-index:40}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--paper);border-radius:20px 20px 0 0;
+    padding:10px 18px calc(18px + var(--safe-b));transform:translateY(105%);transition:transform .25s ease;max-width:640px;margin:0 auto;
+    max-height:85vh;overflow:auto}
+  .open .sheet-bg{opacity:1;pointer-events:auto}
+  .open .sheet{transform:none}
+  .grab{width:40px;height:5px;border-radius:9px;background:#ddd4c5;margin:0 auto 10px}
+  .sheet h3{margin:4px 0 2px;font-size:20px}
+  .sheet .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+  .fl{font-weight:650;font-size:13px;margin:14px 0 8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:8px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);font-size:14px}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);margin-top:14px;font-size:14.5px}
+  .sw{width:46px;height:28px;border-radius:99px;background:#d8cfbf;position:relative;transition:.2s;flex:0 0 auto}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .sw.on{background:var(--ok)}.sw.on::after{left:21px}
+  .sheet-actions{display:flex;gap:10px;margin-top:18px}
+  .btn{flex:1;padding:13px;border-radius:12px;font-weight:700;text-align:center;border:1px solid var(--line)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .sizes{font-size:13px;color:var(--ink);background:var(--bg);border-radius:12px;padding:10px 12px;line-height:1.5}
+  .loading{padding:60px 16px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<div id="banner"></div>
+<main id="app"><div class="loading">Carico gli articoli…</div></main>
+
+<div id="sheetWrap">
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet" role="dialog" aria-label="Filtri">
+    <div class="grab"></div>
+    <h3 class="serif">Filtri</h3>
+    <p class="hint">Valgono per tutte le sezioni. Le taglie sono già applicate durante lo scaricamento.</p>
+    <div class="sizes" id="sizesBox"></div>
+    <div class="fl">Condizioni minime</div>
+    <div class="chips" id="fCond"></div>
+    <div class="fl">Prezzo totale massimo</div>
+    <div class="chips" id="fPrice"></div>
+    <div class="fl">Cuori minimi</div>
+    <div class="chips" id="fHearts"></div>
+    <div class="toggle"><span>Includi spedizione stimata nel prezzo</span><button class="sw" id="fShip" aria-label="Includi spedizione"></button></div>
+    <div class="sheet-actions">
+      <button class="btn" id="fReset">Predefiniti</button>
+      <button class="btn primary" data-close>Mostra</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const DEFAULTS = { cond: 2, maxPrice: 0, minHearts: 0, ship: true };
+  const COND = [[0,"Tutte"],[2,"Buone o meglio"],[3,"Ottime o meglio"],[4,"Solo nuovi"]];
+  const PRICES = [[0,"Nessun limite"],[15,"15 €"],[25,"25 €"],[40,"40 €"],[60,"60 €"],[100,"100 €"]];
+  const HEARTS = [[0,"Qualsiasi"],[5,"5+"],[15,"15+"],[30,"30+"]];
+  const COND_SHORT = {5:"Nuovo ✓",4:"Nuovo",3:"Ottime",2:"Buone",1:"Discrete"};
+  const PAGE = 30;
+
+  const store = {
+    get(k, d){ try{ const v = localStorage.getItem("radar:"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem("radar:"+k, JSON.stringify(v)); }catch(e){} }
+  };
+  let F = Object.assign({}, DEFAULTS, store.get("filters", {}));
+  let DATA = null;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const eur = n => n.toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
+  const total = it => F.ship ? it.tot : Math.round((it.p + it.f) * 100) / 100;
+  const heartSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.1 1.7-1.9 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+
+  function filtered(cat){
+    return cat.items.filter(it =>
+      (it.cr || 0) >= F.cond &&
+      (!F.maxPrice || total(it) <= F.maxPrice) &&
+      it.h >= F.minHearts);
+  }
+  const SORTS = {
+    hearts: (a,b) => b.h - a.h || total(a) - total(b),
+    asc:    (a,b) => total(a) - total(b) || b.h - a.h,
+    desc:   (a,b) => total(b) - total(a) || b.h - a.h,
+  };
+
+  function card(it){
+    const br = `art. ${eur(it.p)} · prot. ${eur(it.f)}` + (F.ship ? ` · sped. ~${eur(it.sh)}` : "");
+    const meta = [it.b, it.s].filter(Boolean).join(" · ");
+    return `<a class="card" href="${esc(it.u)}" target="_blank" rel="noopener">
+      <div class="ph">
+        <img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${esc(it.img)}" alt="${esc(it.t)}">
+        <span class="hearts">${heartSvg}${it.h}</span>
+        ${it.cr ? `<span class="cond">${COND_SHORT[it.cr]||""}</span>` : ""}
+      </div>
+      <div class="info">
+        <div class="price">${eur(total(it))}</div>
+        <div class="break">${br}</div>
+        <div class="name">${esc(it.t)}</div>
+        <div class="meta">${esc(meta)}</div>
+      </div></a>`;
+  }
+
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const d = new Date(iso);
+    return d.toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"}) + ", " +
+           d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+  const filtersActive = () => F.cond !== DEFAULTS.cond || F.maxPrice || F.minHearts || F.ship !== DEFAULTS.ship;
+
+  function header(html){
+    $("#top").innerHTML = html;
+    requestAnimationFrame(() => document.documentElement.style.setProperty("--hh", $("#top").offsetHeight + "px"));
+  }
+  const filterBtn = () => `<button class="iconbtn ${filtersActive() ? "on" : ""}" id="openF" aria-label="Filtri">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="dot"></span></button>`;
+
+  // ---------- home
+  function renderHome(){
+    header(`<div class="bar"><div class="brand serif">Ra<i>dar</i></div><div class="spacer"></div>${filterBtn()}</div>
+      <div class="sub"><span>Aggiornato ${esc(fmtDate(DATA.updated_at))}</span>
+      <span class="pill">175 cm · 75 kg</span></div>`);
+    $("#app").innerHTML = DATA.categories.map(cat => {
+      const list = filtered(cat).sort(SORTS.hearts);
+      const top = list.slice(0, 5);
+      const stale = cat.stale ? ` · dati del ${esc(fmtDate(cat.updated_at))}` : "";
+      return `<section class="cat">
+        <div class="cat-head"><h2 class="serif">${esc(cat.name)}</h2>
+          <span class="n">${esc(cat.size_label)}${stale}</span>
+          <a class="all" href="#/c/${esc(cat.id)}">Tutti ${list.length} ›</a></div>
+        ${top.length ? `<div class="row">${top.map(card).join("")}
+          <a class="more" href="#/c/${esc(cat.id)}"><span>→</span>Vedi tutti<br>${list.length}</a></div>`
+          : `<div class="empty">Nessun articolo con questi filtri.</div>`}
+      </section>`;
+    }).join("");
+    window.scrollTo(0, store.get("homeY", 0));
+  }
+
+  // ---------- categoria
+  let catState = null;
+  function renderCat(id){
+    const cat = DATA.categories.find(c => c.id === id);
+    if(!cat){ location.hash = "#/"; return; }
+    const sort = store.get("sort:"+id, "hearts");
+    catState = { cat, sort, q: "", shown: 0, list: [] };
+    header(`<div class="bar"><a class="back" href="#/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Tutte</a>
+      <div class="spacer"></div>${filterBtn()}</div>
+      <h1 class="ctitle serif">${esc(cat.name)}</h1>
+      <div class="sub"><span class="pill">Taglia ${esc(cat.size_label)}</span><span>Aggiornato ${esc(fmtDate(cat.updated_at || DATA.updated_at))}</span></div>`);
+    $("#app").innerHTML = `<div class="tools">
+        <div class="seg" id="seg">
+          <button data-s="hearts">♥ Più cuori</button><button data-s="asc">Prezzo ↑</button><button data-s="desc">Prezzo ↓</button>
+        </div>
+        <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7a7268" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Cerca marca o parola (es. Levi's, lino)" autocomplete="off"></label>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="grid" id="grid"></div><div class="sentinel" id="sentinel"></div>`;
+    $("#seg").addEventListener("click", e => {
+      const b = e.target.closest("button"); if(!b) return;
+      catState.sort = b.dataset.s; store.set("sort:"+id, catState.sort); refreshCat(); window.scrollTo(0,0);
+    });
+    let t; $("#q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { catState.q = e.target.value.trim().toLowerCase(); refreshCat(); }, 180); });
+    refreshCat();
+    window.scrollTo(0, 0);
+  }
+  function refreshCat(){
+    const s = catState;
+    document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.s === s.sort));
+    s.list = filtered(s.cat).filter(it => !s.q || (it.t + " " + it.b).toLowerCase().includes(s.q)).sort(SORTS[s.sort]);
+    s.shown = 0; $("#grid").innerHTML = "";
+    $("#count").textContent = s.list.length ? `${s.list.length} articoli` : "Nessun articolo con questi filtri.";
+    more();
+  }
+  function more(){
+    const s = catState; if(!s) return;
+    const next = s.list.slice(s.shown, s.shown + PAGE);
+    if(!next.length) return;
+    $("#grid").insertAdjacentHTML("beforeend", next.map(card).join(""));
+    s.shown += next.length;
+  }
+  const io = new IntersectionObserver(es => { if(es.some(e => e.isIntersecting)) more(); }, { rootMargin: "800px" });
+
+  // ---------- filtri
+  function chips(el, opts, key){
+    el.innerHTML = opts.map(([v,l]) => `<button class="chip ${F[key]===v?"on":""}" data-v="${v}">${l}</button>`).join("");
+    el.onclick = e => { const b = e.target.closest(".chip"); if(!b) return; F[key] = Number(b.dataset.v); saveF(); };
+  }
+  function paintSheet(){
+    chips($("#fCond"), COND, "cond"); chips($("#fPrice"), PRICES, "maxPrice"); chips($("#fHearts"), HEARTS, "minHearts");
+    $("#fShip").classList.toggle("on", F.ship);
+    const labels = DATA ? DATA.categories.map(c => `<b>${esc(c.name)}</b>: ${esc(c.size_label)}`).join(" · ") : "";
+    $("#sizesBox").innerHTML = "Taglie per 175 cm / 75 kg — " + labels;
+  }
+  function saveF(){
+    store.set("filters", F); paintSheet();
+    if(catState){ refreshCat(); const b = $("#openF"); if(b) b.classList.toggle("on", !!filtersActive()); }
+    else renderHome();
+  }
+  $("#fShip").onclick = () => { F.ship = !F.ship; saveF(); };
+  $("#fReset").onclick = () => { F = Object.assign({}, DEFAULTS); saveF(); };
+  const sheet = $("#sheetWrap");
+  document.addEventListener("click", e => {
+    if(e.target.closest("#openF")){ paintSheet(); sheet.classList.add("open"); }
+    if(e.target.closest("[data-close]")) sheet.classList.remove("open");
+  });
+
+  // ---------- routing
+  function route(){
+    if(!DATA) return;
+    const m = location.hash.match(/^#\/c\/([\w-]+)/);
+    if(m){ renderCat(m[1]); if(catState) io.observe($("#sentinel")); }
+    else { catState = null; renderHome(); }
+  }
+  window.addEventListener("hashchange", route);
+  window.addEventListener("scroll", () => {
+    $("#top").classList.toggle("scrolled", window.scrollY > 4);
+    if(!catState) store.set("homeY", window.scrollY);
+  }, { passive: true });
+
+  function showBanner(text){ $("#banner").innerHTML = `<div class="banner">${text}</div>`; }
+
+  async function load(){
+    try{
+      const r = await fetch("data/items.json?v=" + Date.now(), { cache: "no-store" });
+      if(!r.ok) throw new Error(r.status);
+      DATA = await r.json();
+    }catch(e){
+      if(window.__DEMO__){ DATA = window.__DEMO__; showBanner("<b>Anteprima con dati di esempio.</b> Gli articoli veri arrivano dopo il primo aggiornamento giornaliero."); }
+      else { $("#app").innerHTML = '<div class="loading">Nessun dato ancora. Avvia il workflow “Aggiorna dati Vinted” su GitHub.</div>'; return; }
+    }
+    const age = (Date.now() - new Date(DATA.updated_at)) / 36e5;
+    if(age > 36 && !window.__DEMO__) showBanner(`Dati di ${Math.round(age/24)} giorni fa: probabilmente Vinted ha bloccato l'ultimo aggiornamento. Vedi README → “Se Vinted blocca”.`);
+    route();
+  }
+  load();
+})();
+</script>
+</body>
+</html>
