@@ -29,8 +29,8 @@ Da quel momento si aggiorna da solo ogni giorno alle 06:17 (ora italiana, in inv
 | Sezione | Taglia applicata | Come |
 |---|---|---|
 | Camicie, Maglioni e felpe, Giacche e cappotti | **M** (accetta anche "IT 48") | filtro sulla taglia dell'annuncio |
-| Jeans | **W32**, e scarta gli annunci che nel titolo dichiarano una lunghezza diversa da **L32** (es. "W32 L30", "32/34") | Vinted non ha un filtro per la lunghezza, quindi la si legge dal titolo |
-| Pantaloni | **W32 / IT 48 / M** | filtro sulla taglia dell'annuncio |
+| Jeans | **W32** (su vinted.it "IT 42 \| W32"), e scarta gli annunci che nel titolo dichiarano una lunghezza diversa da **L32** (es. "W32 L30", "32/34") | Vinted non ha un filtro per la lunghezza, quindi la si legge dal titolo |
+| Pantaloni | **W32** (su vinted.it appare come "IT 42 \| W32") oppure **M** | filtro sulla taglia dell'annuncio |
 
 Filtri nell'app (icona in alto a destra; valgono per tutte le sezioni e restano salvati sul telefono):
 - **Condizioni minime**: predefinito *Buone o meglio* (esclude "Discrete")
@@ -78,9 +78,9 @@ Se succede spesso, hai tre opzioni in ordine di costo:
 ---
 
 ## Note
-- Lo scraper legge circa 8 pagine da 96 articoli per sezione (5 per "rilevanza" e 3 per "più recenti") e tiene i 300 articoli con più cuori. L'API di Vinted non permette di ordinare per cuori, quindi l'ordinamento avviene dopo lo scaricamento.
+- Lo scraper legge circa 8 pagine da 96 articoli per sezione (5 per "rilevanza" e 3 per "più recenti") e tiene i 300 articoli con più cuori. Vinted non permette di ordinare per cuori, quindi l'ordinamento avviene dopo lo scaricamento.
 - GitHub sospende i workflow pianificati dopo 60 giorni senza attività nel repository. Se succede, ti arriva un'email: basta riattivarli da *Actions*.
-- Usa un endpoint interno e non documentato di Vinted. Se un giorno cambia formato, va adattato `scraper/scrape.py`. È pensato per uso personale e con poche richieste al giorno.
+- Legge le pagine catalogo di www.vinted.it (in italiano e in euro). La nuova API di Vinted (`api.vinted.it/svc-catalogue/items`, da settembre 2026) dai server GitHub negli USA restituisce annunci americani in dollari, quindi non è usata. Se Vinted cambia l'aspetto delle pagine, va adattato `parse_catalog_html` in `scraper/scrape.py`. È pensato per uso personale e con poche richieste al giorno.
 
 ## Struttura
 ```
