@@ -69,6 +69,19 @@
         34
       ],
       "size_profile": "pantaloni",
+      "shipping_estimate": 3.49,
+      "exclude_title": "\\b(tuta|tute|jogg\\w*|sweat ?pants?|track ?pants?|trackpants|tech fleece|pantalon[ei]? (?:della )?tuta|pantalon[ei]? sportiv\\w*|felpat\\w*|jogginghose|survêtement|chandal|chándal)\\b",
+      "exclude_from": [
+        "tute"
+      ]
+    },
+    {
+      "id": "tute",
+      "name": "Tute",
+      "catalog_ids": [
+        1821
+      ],
+      "size_profile": "pantaloni",
       "shipping_estimate": 3.49
     },
     {

@@ -256,6 +256,7 @@ def normalize(item, cat: dict) -> dict | None:
 def scrape_category(client, cat: dict, profile: dict | None) -> list[dict]:
     params, server_sizes = base_params(cat)
     local_profile = None if server_sizes else profile
+    excl = re.compile(cat["exclude_title"], re.I) if cat.get("exclude_title") else None
     seen: dict = {}
     raw_count = 0
     blocked = False
@@ -275,6 +276,8 @@ def scrape_category(client, cat: dict, profile: dict | None) -> list[dict]:
             raw_count += len(items)
             for it in items:
                 if not size_ok(it, local_profile):
+                    continue
+                if excl and excl.search(it.get("title", "")):
                     continue
                 norm = normalize(it, cat)
                 if norm and norm["id"] not in seen and norm["img"]:
@@ -325,6 +328,19 @@ def main(client=None) -> int:
     if fresh == 0:
         log("Nessuna categoria aggiornata. File invariato.")
         return 1
+
+    # "exclude_from": toglie da una sezione gli articoli già presenti in altre
+    # (es. le tute, che Vinted mette anche dentro "Pantaloni")
+    by_id = {c["id"]: c for c in out_cats}
+    for cat in CONFIG["categories"]:
+        entry = by_id.get(cat["id"])
+        if not entry or not cat.get("exclude_from"):
+            continue
+        other = {it["id"] for oid in cat["exclude_from"] for it in by_id.get(oid, {}).get("items", [])}
+        before = len(entry["items"])
+        entry["items"] = [it for it in entry["items"] if it["id"] not in other]
+        if before != len(entry["items"]):
+            log(f"  {cat['name']}: tolti {before - len(entry['items'])} articoli già in {cat['exclude_from']}")
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     payload = {"updated_at": now, "domain": CONFIG["domain"], "categories": out_cats}
